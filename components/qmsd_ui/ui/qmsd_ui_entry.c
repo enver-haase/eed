@@ -1,5 +1,8 @@
 #include "qmsd_ui_entry.h"
 #include "qmsd_ctrl.h"
+
+#include "energy-meter.h"
+
 #include <stdio.h>
 #include <stdlib.h>
 
@@ -36,12 +39,14 @@ qmsd_font_t g_qmsd_font[] =
 
 void qmsd_ui_entry(void)
 {
-     qmsd_screen_list_init(16);
+    qmsd_screen_list_init(16);
     LV_FONT_DECLARE(ali_font_16);
     qmsd_set_screen(qmsd_search_screen);
     qmsd_set_widget(qmsd_search_widget);
     qmsd_set_img(qmsd_get_img);
     qmsd_set_font(qmsd_get_font);
+
+    setup_modbus_master();
 }
 
 lv_img_src_t *qmsd_get_img(const char *w_name)

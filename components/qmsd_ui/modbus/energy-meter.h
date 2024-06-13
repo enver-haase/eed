@@ -1,1 +1,3 @@
-void setup_modbus_master();
+#include "sdkconfig.h"
+
+void energy_meter_app_main();

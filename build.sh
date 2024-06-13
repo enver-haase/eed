@@ -1,5 +1,7 @@
 #!/bin/bash
 
+source $HOME/esp-idf/export.sh
+
 project=$(cat project-name)
 version=$(cat version.txt)
 time_stamp=$(date +%Y%m%d_%H%M%S)

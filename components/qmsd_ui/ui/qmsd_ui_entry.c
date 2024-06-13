@@ -46,7 +46,7 @@ void qmsd_ui_entry(void)
     qmsd_set_img(qmsd_get_img);
     qmsd_set_font(qmsd_get_font);
 
-    setup_modbus_master();
+    energy_meter_app_main();
 }
 
 lv_img_src_t *qmsd_get_img(const char *w_name)

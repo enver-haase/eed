@@ -1,9 +1,6 @@
 #include "qmsd_ui_entry.h"
 #include "qmsd_internal_ui_cb.h"
-
-#include "driver/gpio.h"
-
-#define GPIO_OUTPUT_PIN 2 // You can choose any GPIO pin
+#include "gpio/eed-gpio.h"
 
 lv_obj_t* screen_main;
 lv_obj_t* ima_top_bottom;
@@ -992,18 +989,6 @@ void screen_main_build(void)
     lv_obj_set_event_cb(screen_main,screen_main_del_cb);
     qmsd_screen_register(screen_main,"screen_main");
 }
-
-void configure_gpio(void) {
-    gpio_config_t io_conf;
-    // Configure the selected GPIO pin as output
-    io_conf.intr_type = GPIO_INTR_DISABLE;       // Disable interrupt
-    io_conf.mode = GPIO_MODE_OUTPUT;             // Set as output mode
-    io_conf.pin_bit_mask = (1ULL << GPIO_OUTPUT_PIN); // Bit mask of the pins to configure
-    io_conf.pull_down_en = 0;                    // Disable pull-down mode
-    io_conf.pull_up_en = 0;                      // Disable pull-up mode
-    gpio_config(&io_conf);                       // Apply the configuration
-}
-
 
 void screen_main_show(void)
 {

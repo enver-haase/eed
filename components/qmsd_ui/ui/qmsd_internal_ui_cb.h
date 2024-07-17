@@ -8,8 +8,11 @@ extern "C"
 
 #include "lvgl.h"
 
-void __qmsd_main_button_1_cb(lv_obj_t* obj,lv_event_t event);
-void __qmsd_test_button_1_cb(lv_obj_t* obj,lv_event_t event);
+#define BLOCKLY_switch_reactor_EVENT_HANDLER
+void __qmsd_switch_reactor_cb(lv_obj_t* obj,lv_event_t event);
+
+#define BLOCKLY_screen_main_SCREEN_INIT
+void __qmsd_screen_main_init(void);
 
 #ifdef __cplusplus
 } /* extern "C" */

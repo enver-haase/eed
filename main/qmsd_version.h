@@ -1,1 +1,0 @@
-#define QMSD_VERSION "qmsd_2.2_20240613_143112"

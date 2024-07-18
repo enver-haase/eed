@@ -1,6 +1,7 @@
 #include "qmsd_ui_entry.h"
 #include "qmsd_internal_ui_cb.h"
 #include "gpio/eed-gpio.h"
+#include "modbus/energy-meter.h"
 
 lv_obj_t* screen_main;
 lv_obj_t* ima_top_bottom;
@@ -998,7 +999,9 @@ void screen_main_show(void)
     }
     
     configure_gpio();
-    
+
+    energy_meter_app_main();
+
     lv_scr_load(screen_main);
 }
 

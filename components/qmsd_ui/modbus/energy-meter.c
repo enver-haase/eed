@@ -54,20 +54,27 @@ static const char *TAG = "MASTER_TEST";
 
 // Enumeration of modbus device addresses accessed by master device
 enum {
-    MB_DEVICE_ADDR1 = 1 // Only one slave device used for the test (add other slave addresses here)
+    MB_DEVICE_ADDR1 = 1, // Only one slave device used for the test (add other slave addresses here)
+    MB_SLAVE_COUNT
 };
 
 // Enumeration of all supported CIDs for device (used in parameter definition table)
+//enum {
+//    CID_INP_DATA_0 = 0,
+//    CID_HOLD_DATA_0,
+//    CID_INP_DATA_1,
+//    CID_HOLD_DATA_1,
+//    CID_INP_DATA_2,
+//    CID_HOLD_DATA_2,
+//    CID_HOLD_TEST_REG,
+//    CID_RELAY_P1,
+//    CID_RELAY_P2,
+//    CID_COUNT
+//};
 enum {
     CID_INP_DATA_0 = 0,
-    CID_HOLD_DATA_0,
     CID_INP_DATA_1,
-    CID_HOLD_DATA_1,
     CID_INP_DATA_2,
-    CID_HOLD_DATA_2,
-    CID_HOLD_TEST_REG,
-    CID_RELAY_P1,
-    CID_RELAY_P2,
     CID_COUNT
 };
 
@@ -101,8 +108,14 @@ const mb_parameter_descriptor_t device_parameters[] = {
 //    { CID_RELAY_P2, STR("RelayP2"), STR("on/off"), MB_DEVICE_ADDR1, MB_PARAM_COIL, 8, 8,
 //            COIL_OFFSET(coils_port1), PARAM_TYPE_U16, 2, OPTS( BIT0, 0, 0 ), PAR_PERMS_READ_WRITE_TRIGGER }
 
-    { CID_INP_DATA_0, STR("Voltage-L1"), STR("Volts"), MB_DEVICE_ADDR1, MB_PARAM_INPUT, 0, 2,
-            INPUT_OFFSET(input_data0), PARAM_TYPE_FLOAT, 4, OPTS( BIT0, 0, 0 ), PAR_PERMS_READ_WRITE_TRIGGER }
+    { CID_INP_DATA_0, STR("Voltage-Phase_1"), STR("Volts"), MB_DEVICE_ADDR1, MB_PARAM_INPUT, 0x0000, 2,
+            INPUT_OFFSET(input_data0), PARAM_TYPE_FLOAT, 4, OPTS( 0, 0, 0 ), PAR_PERMS_READ }
+            ,
+    { CID_INP_DATA_1, STR("Current-Phase_1"), STR("Amperes"), MB_DEVICE_ADDR1, MB_PARAM_INPUT, 0x0006, 2,
+            INPUT_OFFSET(input_data1), PARAM_TYPE_FLOAT, 4, OPTS( 0, 0, 0 ), PAR_PERMS_READ }
+            ,
+    { CID_INP_DATA_2, STR("Power-Phase_1"), STR("Watts"), MB_DEVICE_ADDR1, MB_PARAM_INPUT, 0x000c, 2,
+            INPUT_OFFSET(input_data2), PARAM_TYPE_FLOAT, 4, OPTS( 0, 0, 0 ), PAR_PERMS_READ }
 
 };
 
@@ -144,6 +157,8 @@ static void* master_get_param_data(const mb_parameter_descriptor_t* param_descri
 static void master_operation_func(void *arg)
 {
     esp_err_t err = ESP_OK;
+
+
     float value = 0;
     bool alarm_state = false;
     const mb_parameter_descriptor_t* param_descriptor = NULL;
@@ -162,7 +177,7 @@ static void master_operation_func(void *arg)
                 void* temp_data_ptr = master_get_param_data(param_descriptor);
                 assert(temp_data_ptr);
                 uint8_t type = 0;
-                if ((param_descriptor->param_type == PARAM_TYPE_ASCII) &&
+                /*if ((param_descriptor->param_type == PARAM_TYPE_ASCII) &&
                         (param_descriptor->cid == CID_HOLD_TEST_REG)) {
                    // Check for long array of registers of type PARAM_TYPE_ASCII
                     err = mbc_master_get_parameter(cid, (char*)param_descriptor->param_key,
@@ -200,23 +215,41 @@ static void master_operation_func(void *arg)
                                                 (int)err,
                                                 (char*)esp_err_to_name(err));
                     }
-                } else {
+                } else */{
                     err = mbc_master_get_parameter(cid, (char*)param_descriptor->param_key,
                                                         (uint8_t*)&value, &type);
                     if (err == ESP_OK) {
+
+
                         *(float*)temp_data_ptr = value;
+
+                        uint8_t a;
+                        uint8_t b;
+                        uint8_t c;
+                        uint8_t d;
+                        a = ((uint8_t*)temp_data_ptr)[0];
+                        b = ((uint8_t*)temp_data_ptr)[1];
+                        c = ((uint8_t*)temp_data_ptr)[2];
+                        d = ((uint8_t*)temp_data_ptr)[3];
+                        ((uint8_t*)temp_data_ptr)[0] = c;
+                        ((uint8_t*)temp_data_ptr)[1] = d;
+                        ((uint8_t*)temp_data_ptr)[2] = a;
+                        ((uint8_t*)temp_data_ptr)[3] = b;
+
+                        float val = * ((float*)temp_data_ptr);
+
                         if ((param_descriptor->mb_param_type == MB_PARAM_HOLDING) ||
                             (param_descriptor->mb_param_type == MB_PARAM_INPUT)) {
                             ESP_LOGI(TAG, "Characteristic #%d %s (%s) value = %f (0x%x) read successful.",
                                             param_descriptor->cid,
                                             (char*)param_descriptor->param_key,
                                             (char*)param_descriptor->param_units,
-                                            value,
+                                            val,
                                             *(uint32_t*)temp_data_ptr);
                             if (((value > param_descriptor->param_opts.max) ||
                                 (value < param_descriptor->param_opts.min))) {
-                                    alarm_state = true;
-                                    break;
+                                    //alarm_state = true;
+                                    //break;
                             }
                         } else {
                             uint16_t state = *(uint16_t*)temp_data_ptr;
@@ -228,8 +261,8 @@ static void master_operation_func(void *arg)
                                             (const char*)rw_str,
                                             *(uint16_t*)temp_data_ptr);
                             if (state & param_descriptor->param_opts.opt1) {
-                                alarm_state = true;
-                                break;
+                                //alarm_state = true;
+                                //break;
                             }
                         }
                     } else {

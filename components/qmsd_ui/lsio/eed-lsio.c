@@ -3,7 +3,7 @@
 
 void configure_lsio(void) {
     // Initialize the AW9523 driver
-    aw9523_init(48, 47);
+    aw9523_init(BOARD_I2C_SDA_PIN, BOARD_I2C_SCL_PIN);
 
     aw9523_set_inout(AW9523_PORT_0, AW9523_MODE_OUTPUT);
     aw9523_set_gpio_or_led(AW9523_PORT_0, AW9523_MODE_GPIO);
